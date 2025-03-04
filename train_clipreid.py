@@ -98,3 +98,4 @@ if __name__ == '__main__':
         loss_func,
         num_query, args.local_rank
     )
+    
