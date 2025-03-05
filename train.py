@@ -85,3 +85,4 @@ if __name__ == '__main__':
         loss_func,
         num_query, args.local_rank
     )
+# ssh 에 깃 클론
