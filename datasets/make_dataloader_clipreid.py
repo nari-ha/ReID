@@ -5,13 +5,10 @@ from torch.utils.data import DataLoader
 from .bases import ImageDataset
 from timm.data.random_erasing import RandomErasing
 from .sampler import RandomIdentitySampler
-from .dukemtmcreid import DukeMTMCreID
 from .market1501 import Market1501
 from .msmt17 import MSMT17
 from .sampler_ddp import RandomIdentitySampler_DDP
 import torch.distributed as dist
-from .occ_duke import OCC_DukeMTMCreID
-from .vehicleid import VehicleID
 from .veri import VeRi
 
 __factory = {
