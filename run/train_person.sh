@@ -5,6 +5,7 @@
 #$ -l gpu=1
 #$ -cwd
 #$ -j y
+#$ -l rocky
 
 set -e
 
