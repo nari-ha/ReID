@@ -1,12 +1,13 @@
 #!/bin/bash
-#$ -l h_rt=24:0:0
-#$ -l h_vmem=11G
+#$ -l h_rt=1:0:0
+#$ -l h_vmem=4G
 #$ -pe smp 8
 #$ -l gpu=1
 #$ -cwd
 #$ -j y
 #$ -l rocky
 
+echo $SGE_HGR_gpu
 set -e
 
 # Replace the following line with a program or command
