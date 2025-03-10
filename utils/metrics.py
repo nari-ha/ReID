@@ -3,13 +3,26 @@ import numpy as np
 import os
 from utils.reranking import re_ranking
 
+# def euclidean_distance(qf, gf):
+#      m = qf.shape[0]
+#      n = gf.shape[0]
+#      dist_mat = torch.pow(qf, 2).sum(dim=1, keepdim=True).expand(m, n) + \
+#                 torch.pow(gf, 2).sum(dim=1, keepdim=True).expand(n, m).t()
+#      dist_mat.addmm_(1, -2, qf, gf.t())
+#      return dist_mat.cpu().numpy()
 
 def euclidean_distance(qf, gf, batch_size=1024):
     dist_mat_list = []
     
     for i in range(0, len(qf), batch_size):
-        batch_qf = qf[i : i + batch_size].to("cpu")  # 메모리 절약
-        batch_dist = torch.addmm(batch_qf, gf.t().to("cpu"), beta=1, alpha=-2)
+        batch_qf = qf[i : i + batch_size].to("cpu")  # GPU 메모리 절약
+        batch_dist = torch.addmm(
+            torch.zeros(batch_qf.shape[0], gf.shape[0]),  # `input`으로 초기화
+            batch_qf,
+            gf.t().to("cpu"),
+            beta=1,
+            alpha=-2
+        )
         dist_mat_list.append(batch_dist)
 
     return torch.cat(dist_mat_list, dim=0).numpy()
