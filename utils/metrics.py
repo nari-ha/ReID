@@ -4,21 +4,15 @@ import os
 from utils.reranking import re_ranking
 
 
-def euclidean_distance(qf, gf):
-    m = qf.shape[0]
-    n = gf.shape[0]
-    dist_mat = (
-        torch.pow(qf, 2).sum(dim=1, keepdim=True).expand(m, n)
-        + torch.pow(gf, 2).sum(dim=1, keepdim=True).expand(n, m).t()
-    )
-    # dist_mat.addmm_(qf, gf.t(), beta=1, alpha=-2)
-    batch_size = 1024
-    num_batches = (len(qf) + batch_size - 1) # batch_size
-    dist_mat = torch.zeros(len(qf), len(gf))
+def euclidean_distance(qf, gf, batch_size=1024):
+    dist_mat_list = []
+    
     for i in range(0, len(qf), batch_size):
-        batch_qf = qf[i : i + batch_size]
-        dist_mat[i : i + batch_size] = torch.addmm(batch_qf, gf.t(), beta=1, alpha=-2)
-    return dist_mat.cpu().numpy()
+        batch_qf = qf[i : i + batch_size].to("cpu")  # 메모리 절약
+        batch_dist = torch.addmm(batch_qf, gf.t().to("cpu"), beta=1, alpha=-2)
+        dist_mat_list.append(batch_dist)
+
+    return torch.cat(dist_mat_list, dim=0).numpy()
 
 
 def cosine_similarity(qf, gf):
