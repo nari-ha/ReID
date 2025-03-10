@@ -12,20 +12,23 @@ from utils.reranking import re_ranking
 #      return dist_mat.cpu().numpy()
 
 def euclidean_distance(qf, gf, batch_size=1024):
-    dist_mat_list = []
+    m, n = qf.shape[0], gf.shape[0]
     
-    for i in range(0, len(qf), batch_size):
-        batch_qf = qf[i : i + batch_size].to("cpu")  # GPU 메모리 절약
+    # 배치별 결과를 저장할 리스트 (대신 NumPy 변환을 피함)
+    for i in range(0, m, batch_size):
+        batch_qf = qf[i : i + batch_size].to("cpu")  # GPU에서 CPU로 이동 (메모리 절약)
+        
+        # Addmm 연산 수행
         batch_dist = torch.addmm(
-            torch.zeros(batch_qf.shape[0], gf.shape[0]),  # `input`으로 초기화
+            torch.zeros((batch_qf.shape[0], n), dtype=torch.float16, device="cpu"),  # 메모리 절약
             batch_qf,
             gf.t().to("cpu"),
             beta=1,
             alpha=-2
         )
-        dist_mat_list.append(batch_dist)
-
-    return torch.cat(dist_mat_list, dim=0).numpy()
+        
+        # 결과를 바로 넘겨서 한 번에 메모리를 사용하지 않음 (yield 사용)
+        yield batch_dist.numpy()
 
 
 def cosine_similarity(qf, gf):
@@ -143,7 +146,9 @@ class R1_mAP_eval:
 
         else:
             print("=> Computing DistMat with euclidean_distance")
-            distmat = euclidean_distance(qf, gf)
+            dist_mat_list = list(euclidean_distance(qf, gf, batch_size=1024))
+            dist_mat = np.concatenate(dist_mat_list, axis=0)  # NumPy로 합침
+            # distmat = euclidean_distance(qf, gf)
         cmc, mAP = eval_func(distmat, q_pids, g_pids, q_camids, g_camids)
 
         return cmc, mAP, distmat, self.pids, self.camids, qf, gf
