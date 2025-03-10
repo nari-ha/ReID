@@ -12,9 +12,12 @@ def euclidean_distance(qf, gf):
         + torch.pow(gf, 2).sum(dim=1, keepdim=True).expand(n, m).t()
     )
     # dist_mat.addmm_(qf, gf.t(), beta=1, alpha=-2)
-    batch_size = 1024  # 적절한 배치 크기로 조정
+    batch_size = 1024
+    num_batches = (len(qf) + batch_size - 1) # batch_size
+    dist_mat = torch.zeros(len(qf), len(gf))
     for i in range(0, len(qf), batch_size):
-        dist_mat.addmm_(qf[i : i + batch_size], gf.t(), beta=1, alpha=-2)
+        batch_qf = qf[i : i + batch_size]
+        dist_mat[i : i + batch_size] = torch.addmm(batch_qf, gf.t(), beta=1, alpha=-2)
     return dist_mat.cpu().numpy()
 
 
