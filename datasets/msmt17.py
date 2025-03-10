@@ -20,6 +20,9 @@ class MSMT17(BaseImageDataset):
     # identities: 4101
     # images: 32621 (train) + 11659 (query) + 82161 (gallery)
     # cameras: 15
+    
+    2024년 Version 2로 수정되었음~!~!~!
+    
     """
     dataset_dir = 'MSMT17_V2'
 
