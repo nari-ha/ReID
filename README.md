@@ -1,7 +1,7 @@
 ﻿## ReID based on CLIP model
 
 ### Pipeline
-
+afasdfsdfdsafsdfsdffddfdfdfsfa이ㅏㅓㅣㅏㅓ이ㅓㅏ어ㅏㅓ아ㅓ앙ㄷㅇㄹㅇㄹㄴㅇㄹㅇ
 
 ### Installation
 
