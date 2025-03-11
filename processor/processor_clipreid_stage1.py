@@ -115,6 +115,6 @@ def do_train_stage1(cfg,
     plt.plot(range(1, epochs+1), loss_history, label="Loss", color='blue', linewidth=2)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.title("Training Loss Curve")
+    plt.title("Stage1 Loss")
     plt.legend()
-    plt.savefig(os.path.join(cfg.OUTPUT_DIR, "loss_curve_stage1.png"))
+    plt.savefig(os.path.join(cfg.OUTPUT_DIR, "stage1.png"))

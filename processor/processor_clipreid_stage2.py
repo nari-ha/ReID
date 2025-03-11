@@ -9,6 +9,7 @@ from torch.cuda import amp
 import torch.distributed as dist
 from torch.nn import functional as F
 from loss.supcontrast import SupConLoss
+import matplotlib.pyplot as plt
 
 def do_train_stage2(cfg,
              model,
@@ -46,6 +47,9 @@ def do_train_stage2(cfg,
     evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
     scaler = amp.GradScaler()
     xent = SupConLoss(device)
+    
+    loss_history = []
+    accuracy_history = []
     
     # train
     import time
@@ -118,7 +122,10 @@ def do_train_stage2(cfg,
                 logger.info("Epoch[{}] Iteration[{}/{}] Loss: {:.3f}, Acc: {:.3f}, Base Lr: {:.2e}"
                             .format(epoch, (n_iter + 1), len(train_loader_stage2),
                                     loss_meter.avg, acc_meter.avg, scheduler.get_lr()[0]))
-
+                
+        loss_history.append(loss_meter.avg)
+        accuracy_history.append(acc_meter.avg)
+        
         end_time = time.time()
         time_per_batch = (end_time - start_time) / (n_iter + 1)
         if cfg.MODEL.DIST_TRAIN:
@@ -184,7 +191,23 @@ def do_train_stage2(cfg,
     all_end_time = time.monotonic()
     total_time = timedelta(seconds=all_end_time - all_start_time)
     logger.info("Total running time: {}".format(total_time))
-    print(cfg.OUTPUT_DIR)
+    
+    # learning curve graph 저장
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+
+    ax1.set_xlabel("Epoch")
+    ax1.set_ylabel("Loss", color='blue')
+    ax1.plot(range(1, epochs + 1), loss_history, label="Loss", color='blue', linewidth=2)
+    ax1.tick_params(axis='y', labelcolor='blue')
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Accuracy", color='orange')
+    ax2.plot(range(1, epochs + 1), accuracy_history, label="Accuracy", color='orange', linewidth=2)
+    ax2.tick_params(axis='y', labelcolor='orange')
+
+    fig.suptitle("Stage2 Loss&Accuracy")
+    fig.tight_layout()
+    plt.savefig(os.path.join(cfg.OUTPUT_DIR, "stage2.png"))
 
 def do_inference(cfg,
                  model,
