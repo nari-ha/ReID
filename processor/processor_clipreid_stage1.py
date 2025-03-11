@@ -8,6 +8,7 @@ import torch.distributed as dist
 import collections
 from torch.nn import functional as F
 from loss.supcontrast import SupConLoss
+import matplotlib.pyplot as plt
 
 def do_train_stage1(cfg,
              model,
@@ -32,6 +33,8 @@ def do_train_stage1(cfg,
     loss_meter = AverageMeter()
     scaler = amp.GradScaler()
     xent = SupConLoss(device)
+    
+    loss_history = []
     
     # train
     import time
@@ -92,6 +95,8 @@ def do_train_stage1(cfg,
                             .format(epoch, (i + 1), len(train_loader_stage1),
                                     loss_meter.avg, scheduler._get_lr(epoch)[0]))
 
+        loss_history.append(loss_meter.avg)
+        
         if epoch % checkpoint_period == 0:
             if cfg.MODEL.DIST_TRAIN:
                 if dist.get_rank() == 0:
@@ -104,3 +109,12 @@ def do_train_stage1(cfg,
     all_end_time = time.monotonic()
     total_time = timedelta(seconds=all_end_time - all_start_time)
     logger.info("Stage1 running time: {}".format(total_time))
+    
+    # loss 그래프 출력
+    plt.figure(figsize=(8,6))
+    plt.plot(range(1, epochs+1), loss_history, label="Loss", color='blue', linewidth=2)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training Loss Curve")
+    plt.legend()
+    plt.savefig(os.path.join(cfg.OUTPUT_DIR, "loss_curve_stage1.png"))
