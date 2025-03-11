@@ -10,6 +10,7 @@ import torch.distributed as dist
 from torch.nn import functional as F
 from loss.supcontrast import SupConLoss
 import matplotlib.pyplot as plt
+import numpy as np
 
 def do_train_stage2(cfg,
              model,
@@ -193,6 +194,8 @@ def do_train_stage2(cfg,
     logger.info("Total running time: {}".format(total_time))
     
     # learning curve graph 저장
+    loss_history = np.array(loss_history)
+    accuracy_history = np.array([acc.cpu().numpy() if isinstance(acc, torch.Tensor) else acc for acc in accuracy_history])
     fig, ax1 = plt.subplots(figsize=(8, 6))
 
     ax1.set_xlabel("Epoch")
