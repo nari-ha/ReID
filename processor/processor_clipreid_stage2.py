@@ -212,6 +212,33 @@ def do_train_stage2(cfg,
     fig.tight_layout()
     plt.savefig(os.path.join(cfg.OUTPUT_DIR, "stage2.png"))
 
+def save_model(cfg, model, epoch):
+    if cfg.MODEL.DIST_TRAIN and dist.get_rank() != 0:
+        return  # 분산 훈련 시 rank 0만 저장
+    
+    torch.save(model.state_dict(),
+               os.path.join(cfg.OUTPUT_DIR, f"{cfg.MODEL.NAME}_{epoch}.pth"))
+
+def evaluate_model(cfg, model, val_loader, evaluator, device, epoch, logger):
+    # 모델 평가하기
+    model.eval()
+    for n_iter, (img, vid, camid, camids, target_view, _) in enumerate(val_loader):
+        with torch.no_grad():
+            img = img.to(device)
+            camids = camids.to(device) if cfg.MODEL.SIE_CAMERA else None
+            target_view = target_view.to(device) if cfg.MODEL.SIE_VIEW else None
+            feat = model(img, cam_label=camids, view_label=target_view, get_feat = True)
+            evaluator.update((feat, vid, camid))
+    
+    cmc, mAP, _, _, _, _, _ = evaluator.compute()
+    logger.info(f"Validation Results - Epoch: {epoch}")
+    logger.info(f"mAP: {mAP:.1%}")
+    for r in [1, 5, 10]:
+        logger.info(f"CMC curve, Rank-{r:<3}:{cmc[r - 1]:.1%}")
+    
+    torch.cuda.empty_cache()
+    return mAP, cmc[0]
+
 def do_inference(cfg,
                  model,
                  val_loader,
