@@ -1,9 +1,4 @@
 # encoding: utf-8
-"""
-@author:  sherlock
-@contact: sherlockliao01@gmail.com
-"""
-
 import glob
 import re
 
@@ -11,7 +6,6 @@ import os.path as osp
 
 from .bases import BaseImageDataset
 from collections import defaultdict
-import pickle
 class Dev(BaseImageDataset):
     dataset_dir = 'dev'
 
