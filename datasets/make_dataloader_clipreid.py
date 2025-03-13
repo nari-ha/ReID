@@ -68,23 +68,22 @@ def make_dataloader(cfg):
         query_data = dataset1.query + dataset2.query
         gallery_data = dataset1.gallery + dataset2.gallery
         
-        dataset = {
-            'train': train_data,
-            'query': query_data,
-            'gallery': gallery_data,
-            'num_train_pids': dataset1.num_train_pids + dataset2.num_train_pids,
-            'num_train_cams': dataset1.num_train_cams + dataset2.num_train_cams,
-            'num_train_vids': max(dataset1.num_train_vids, dataset2.num_train_vids),
-        }
+        # ImageDataset으로 변환
+        train_set = ImageDataset(train_data, train_transforms)
+        train_set_normal = ImageDataset(train_data, val_transforms)
+        val_set = ImageDataset(query_data + gallery_data, val_transforms)
+        num_classes = dataset1.num_train_pids + dataset2.num_train_pids
+        cam_num = dataset1.num_train_cams + dataset2.num_train_cams
+        view_num = max(dataset1.num_train_vids, dataset2.num_train_vids)
 
     else:
         dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
-
-    train_set = ImageDataset(dataset.train, train_transforms)
-    train_set_normal = ImageDataset(dataset.train, val_transforms)
-    num_classes = dataset.num_train_pids
-    cam_num = dataset.num_train_cams
-    view_num = dataset.num_train_vids
+        train_set = ImageDataset(dataset.train, train_transforms)
+        train_set_normal = ImageDataset(dataset.train, val_transforms)
+        val_set = ImageDataset(dataset.query + dataset.gallery, val_transforms)
+        num_classes = dataset.num_train_pids
+        cam_num = dataset.num_train_cams
+        view_num = dataset.num_train_vids
 
     if 'triplet' in cfg.DATALOADER.SAMPLER:
         if cfg.MODEL.DIST_TRAIN:
@@ -114,7 +113,7 @@ def make_dataloader(cfg):
     else:
         print('unsupported sampler! expected softmax or triplet but got {}'.format(cfg.SAMPLER))
 
-    val_set = ImageDataset(dataset.query + dataset.gallery, val_transforms)
+
 
     val_loader = DataLoader(
         val_set, batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=num_workers,
