@@ -53,9 +53,26 @@ def make_dataloader(cfg):
 
     num_workers = cfg.DATALOADER.NUM_WORKERS
     if cfg.DATA_COMBINE == True:
-        print("하이\n하이")
+        dataset1 = DevMarket(root=cfg.DATASETS.ROOT_DIR)
+        dataset2 = DevMSMT(root=cfg.DATASETS.ROOT_DIR)
+        
+    pid_offset = dataset1.num_train_pids
+    cam_offset = dataset2.num_train_cams
+    
+    train_data = dataset1.train + [(img_path, pid + pid_offset, camid + cam_offset, viewid) for img_path, pid, camid, viewid in dataset2.train]
+    query_data = dataset1.query + dataset2.query
+    gallery_data = dataset1.gallery + dataset2.gallery
+    
+    dataset = {
+        'train': train_data,
+        'query': query_data,
+        'gallery': gallery_data,
+        'num_train_pids': dataset1.num_train_pids + dataset2.num_train_pids,
+        'num_train_cams': dataset1.num_train_cams + dataset2.num_train_cams,
+        'num_train_vids': max(dataset1.num_train_vids, dataset2.num_train_vids),
+    }
 
-    dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
+    # dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
     
     train_set = ImageDataset(dataset.train, train_transforms)
     train_set_normal = ImageDataset(dataset.train, val_transforms)
