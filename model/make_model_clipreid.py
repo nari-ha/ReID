@@ -87,7 +87,7 @@ class build_transformer(nn.Module):
 
         self.image_encoder = clip_model.visual
         
-        print("카메라", cfg.MODEL.SIE_CAMERA, "뷰", cfg.MODEL.SIE_VIEW)
+        # print("카메라", cfg.MODEL.SIE_CAMERA, "뷰", cfg.MODEL.SIE_VIEW)
         if cfg.MODEL.SIE_CAMERA and cfg.MODEL.SIE_VIEW:
             self.cv_embed = nn.Parameter(torch.zeros(camera_num * view_num, self.in_planes))
             trunc_normal_(self.cv_embed, std=.02)
@@ -124,19 +124,19 @@ class build_transformer(nn.Module):
             img_feature = nn.functional.avg_pool2d(image_features, image_features.shape[2:4]).view(x.shape[0], -1) 
             img_feature_proj = image_features_proj[0]
 
-        elif self.model_name == 'ViT-B-16':
-            if cam_label != None and view_label!=None:
-                cv_embed = self.sie_coe * self.cv_embed[cam_label * self.view_num + view_label]
-            elif cam_label != None:
-                cv_embed = self.sie_coe * self.cv_embed[cam_label]
-            elif view_label!=None:
-                cv_embed = self.sie_coe * self.cv_embed[view_label]
-            else:
-                cv_embed = None
-            image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) 
-            img_feature_last = image_features_last[:,0]
-            img_feature = image_features[:,0]
-            img_feature_proj = image_features_proj[:,0]
+        # elif self.model_name == 'ViT-B-16':
+        #     if cam_label != None and view_label!=None:
+        #         cv_embed = self.sie_coe * self.cv_embed[cam_label * self.view_num + view_label]
+        #     elif cam_label != None:
+        #         cv_embed = self.sie_coe * self.cv_embed[cam_label]
+        #     elif view_label!=None:
+        #         cv_embed = self.sie_coe * self.cv_embed[view_label]
+        #     else:
+        #         cv_embed = None
+        #     image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) 
+        #     img_feature_last = image_features_last[:,0]
+        #     img_feature = image_features[:,0]
+        #     img_feature_proj = image_features_proj[:,0]
 
         feat = self.bottleneck(img_feature) 
         feat_proj = self.bottleneck_proj(img_feature_proj) 
@@ -178,7 +178,6 @@ def load_clip_to_cpu(backbone_name, h_resolution, w_resolution, vision_stride_si
     model_path = clip._download(url)
 
     try:
-        # loading JIT archive
         model = torch.jit.load(model_path, map_location="cpu").eval()
         state_dict = None
 

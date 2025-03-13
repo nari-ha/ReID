@@ -81,4 +81,6 @@ DATASETS:
   ROOT_DIR: ('./../dataset')
 OUTPUT_DIR: './output/dev'
 
+DATA_COMBINE: True
+
 # CUDA_VISIBLE_DEVICES=1 python train_clipreid.py --config_file configs/person/res_clipreid.yml

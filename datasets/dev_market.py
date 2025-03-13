@@ -6,11 +6,11 @@ import os.path as osp
 
 from .bases import BaseImageDataset
 from collections import defaultdict
-class Dev(BaseImageDataset):
-    dataset_dir = 'dev'
+class DevMarket(BaseImageDataset):
+    dataset_dir = 'dev-market'
 
     def __init__(self, root='', verbose=True, pid_begin = 0, **kwargs):
-        super(Dev, self).__init__()
+        super(DevMarket, self).__init__()
         self.dataset_dir = osp.join(root, self.dataset_dir)
         self.train_dir = osp.join(self.dataset_dir, 'train')
         self.query_dir = osp.join(self.dataset_dir, 'query')
@@ -23,7 +23,7 @@ class Dev(BaseImageDataset):
         gallery = self._process_dir(self.gallery_dir, relabel=False)
 
         if verbose:
-            print("=> dev loaded")
+            print("=> dev-market loaded")
             self.print_dataset_statistics(train, query, gallery)
 
         self.train = train
