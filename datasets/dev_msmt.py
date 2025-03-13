@@ -10,8 +10,8 @@ class DevMSMT(BaseImageDataset):
         super(DevMSMT, self).__init__()
         self.pid_begin = pid_begin
         self.dataset_dir = osp.join(root, self.dataset_dir)
-        self.train_dir = osp.join(self.dataset_dir, 'mask_train_v2')
-        self.test_dir = osp.join(self.dataset_dir, 'mask_test_v2')
+        self.train_dir = osp.join(self.dataset_dir, 'train')
+        self.test_dir = osp.join(self.dataset_dir, 'test')
         self.list_train_path = osp.join(self.dataset_dir, 'list_train.txt')
         self.list_val_path = osp.join(self.dataset_dir, 'list_val.txt')
         self.list_query_path = osp.join(self.dataset_dir, 'list_query.txt')
