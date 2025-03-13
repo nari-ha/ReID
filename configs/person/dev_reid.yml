@@ -77,7 +77,7 @@ DATASETS:
 #   ROOT_DIR: ('')
 # OUTPUT_DIR: ''
 
-  NAMES: ('dev')
+  NAMES: ('dev_market')
   ROOT_DIR: ('./../dataset')
 OUTPUT_DIR: './output/dev'
 
