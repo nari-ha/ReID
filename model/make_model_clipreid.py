@@ -86,7 +86,8 @@ class build_transformer(nn.Module):
         clip_model.to("cuda")
 
         self.image_encoder = clip_model.visual
-
+        
+        print("카메라", cfg.MODEL.SIE_CAMERA, "뷰", cfg.MODEL.SIE_VIEW)
         if cfg.MODEL.SIE_CAMERA and cfg.MODEL.SIE_VIEW:
             self.cv_embed = nn.Parameter(torch.zeros(camera_num * view_num, self.in_planes))
             trunc_normal_(self.cv_embed, std=.02)
