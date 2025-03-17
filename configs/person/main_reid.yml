@@ -82,6 +82,6 @@ DATASETS:
 OUTPUT_DIR: './output/market1501'
 
 DATA_COMBINE: True
-DATA_COMBINE_EVAL: 0 # 0 : combine, 1: market1501, 2: msmt17
+DATA_COMBINE_EVAL: 1 # 0 : combine, 1: market1501, 2: msmt17
 
 # CUDA_VISIBLE_DEVICES=1 python train_clipreid.py --config_file configs/person/res_clipreid.yml
