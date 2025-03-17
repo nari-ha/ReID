@@ -121,4 +121,4 @@ def make_dataloader(cfg):
         train_set_normal, batch_size=cfg.SOLVER.STAGE1.IMS_PER_BATCH, shuffle=True, num_workers=num_workers,
         collate_fn=train_collate_fn
     )
-    return train_loader_stage2, train_loader_stage1, val_loader, len(query_data), num_classes, cam_num, view_num
+    return train_loader_stage2, train_loader_stage1, val_loader, len(dataset.query), num_classes, cam_num, view_num
