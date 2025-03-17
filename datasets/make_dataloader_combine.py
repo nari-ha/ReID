@@ -53,14 +53,14 @@ def make_dataloader(cfg):
 
     num_workers = cfg.DATALOADER.NUM_WORKERS
     if cfg.DATA_COMBINE == True:
-        dataset1 = DevMarket(root=cfg.DATASETS.ROOT_DIR)
-        dataset2 = DevMSMT(root=cfg.DATASETS.ROOT_DIR)
+        # dataset1 = DevMarket(root=cfg.DATASETS.ROOT_DIR)
+        # dataset2 = DevMSMT(root=cfg.DATASETS.ROOT_DIR)
         """
         for test
         
         """
-        # dataset1 = Market1501(root=cfg.DATASETS.ROOT_DIR)
-        # dataset2 = MSMT17(root=cfg.DATASETS.ROOT_DIR)
+        dataset1 = Market1501(root=cfg.DATASETS.ROOT_DIR)
+        dataset2 = MSMT17(root=cfg.DATASETS.ROOT_DIR)
         pid_offset = dataset1.num_train_pids
         cam_offset = dataset2.num_train_cams
         
