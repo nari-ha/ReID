@@ -177,7 +177,7 @@ def do_train_stage2(cfg,
     ax1.tick_params(axis='y', labelcolor='red')
     
     for i, v in enumerate(map_history):
-        ax1.annotate(v, (i + 1, v), textcoords="offset points", xytext=(0, 5), ha='center', fontsize=6, color='red')
+        ax1.annotate(v, (i + 1, v), textcoords="offset points", xytext=(0, 5), ha='center', fontsize=8, color='red')
 
     ax2 = ax1.twinx()
     ax2.set_ylabel("R1", color='green')
@@ -185,7 +185,7 @@ def do_train_stage2(cfg,
     ax2.tick_params(axis='y', labelcolor='green')
     
     for i, v in enumerate(r1_history):
-        ax2.annotate(v, (i + 1, v), textcoords="offset points", xytext=(0, 5), ha='center', fontsize=6, color='green')
+        ax2.annotate(v, (i + 1, v), textcoords="offset points", xytext=(0, -10), ha='center', fontsize=8, color='green')
 
 
     fig.suptitle("Stage2 Evaluation")
