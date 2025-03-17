@@ -18,7 +18,9 @@ def weights_init_kaiming(m):
     elif classname.find('BatchNorm') != -1:
         if m.affine:
             nn.init.constant_(m.weight, 1.0)
+            m.weight.requires_grad_(False)  # Freeze gamma
             nn.init.constant_(m.bias, 0.0)
+            m.bias.requires_grad_(True)  # Make bias learnable
 
 def weights_init_classifier(m):
     classname = m.__class__.__name__
@@ -73,10 +75,16 @@ class build_transformer(nn.Module):
         self.classifier_proj.apply(weights_init_classifier)
 
         self.bottleneck = nn.BatchNorm1d(self.in_planes)
-        self.bottleneck.bias.requires_grad_(False)
+        # self.bottleneck.bias.requires_grad_(False)
+        self.bottleneck.weight.requires_grad_(False)  # Freeze gamma
+        self.bottleneck.bias.requires_grad_(True)  # Make bias learnable
+        
         self.bottleneck.apply(weights_init_kaiming)
         self.bottleneck_proj = nn.BatchNorm1d(self.in_planes_proj)
-        self.bottleneck_proj.bias.requires_grad_(False)
+        # self.bottleneck_proj.bias.requires_grad_(False)
+        self.bottleneck_proj.weight.requires_grad_(False)  # Freeze gamma
+        self.bottleneck_proj.bias.requires_grad_(True)  # Make bias learnable
+        
         self.bottleneck_proj.apply(weights_init_kaiming)
 
         self.h_resolution = int((cfg.INPUT.SIZE_TRAIN[0]-16)//cfg.MODEL.STRIDE_SIZE[0] + 1)
