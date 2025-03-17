@@ -65,7 +65,7 @@ def make_dataloader(cfg):
         cam_offset = dataset2.num_train_cams
         
         train_data = dataset1.train + [(img_path, pid + pid_offset, camid + cam_offset, viewid) for img_path, pid, camid, viewid in dataset2.train]
-        # if eval 온리
+        
         if cfg.DATA_COMBINE_EVAL == 0:
             query_data = dataset1.query + dataset2.query
             gallery_data = dataset1.gallery + dataset2.gallery
@@ -129,4 +129,7 @@ def make_dataloader(cfg):
         train_set_normal, batch_size=cfg.SOLVER.STAGE1.IMS_PER_BATCH, shuffle=True, num_workers=num_workers,
         collate_fn=train_collate_fn
     )
-    return train_loader_stage2, train_loader_stage1, val_loader, len(query_data), num_classes, cam_num, view_num
+    
+    return train_loader_stage2, train_loader_stage1, val_loader, num_classes, num_classes, cam_num, view_num
+    # return train_loader_stage2, train_loader_stage1, val_loader, len(query_data), num_classes, cam_num, view_num
+
