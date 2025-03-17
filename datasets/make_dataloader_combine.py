@@ -130,6 +130,5 @@ def make_dataloader(cfg):
         collate_fn=train_collate_fn
     )
     
-    return train_loader_stage2, train_loader_stage1, val_loader, len(query_data), len(query_data), cam_num, view_num
-    # return train_loader_stage2, train_loader_stage1, val_loader, len(query_data), num_classes, cam_num, view_num
+    return train_loader_stage2, train_loader_stage1, val_loader, len(query_data), num_classes, cam_num, view_num
 
