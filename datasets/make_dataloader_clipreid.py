@@ -52,38 +52,14 @@ def make_dataloader(cfg):
     ])
 
     num_workers = cfg.DATALOADER.NUM_WORKERS
-    if cfg.DATA_COMBINE == True:
-        dataset1 = DevMarket(root=cfg.DATASETS.ROOT_DIR)
-        dataset2 = DevMSMT(root=cfg.DATASETS.ROOT_DIR)
-        """
-        for test
-        
-        """
-        # dataset1 = Market1501(root=cfg.DATASETS.ROOT_DIR)
-        # dataset2 = MSMT17(root=cfg.DATASETS.ROOT_DIR)
-        pid_offset = dataset1.num_train_pids
-        cam_offset = dataset2.num_train_cams
-        
-        train_data = dataset1.train + [(img_path, pid + pid_offset, camid + cam_offset, viewid) for img_path, pid, camid, viewid in dataset2.train]
-        query_data = dataset1.query + dataset2.query
-        gallery_data = dataset1.gallery + dataset2.gallery
-        
-        # ImageDataset으로 변환
-        train_set = ImageDataset(train_data, train_transforms)
-        train_set_normal = ImageDataset(train_data, val_transforms)
-        val_set = ImageDataset(query_data + gallery_data, val_transforms)
-        num_classes = dataset1.num_train_pids + dataset2.num_train_pids
-        cam_num = dataset1.num_train_cams + dataset2.num_train_cams
-        view_num = max(dataset1.num_train_vids, dataset2.num_train_vids)
 
-    else:
-        dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
-        train_set = ImageDataset(dataset.train, train_transforms)
-        train_set_normal = ImageDataset(dataset.train, val_transforms)
-        val_set = ImageDataset(dataset.query + dataset.gallery, val_transforms)
-        num_classes = dataset.num_train_pids
-        cam_num = dataset.num_train_cams
-        view_num = dataset.num_train_vids
+    dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
+    train_set = ImageDataset(dataset.train, train_transforms)
+    train_set_normal = ImageDataset(dataset.train, val_transforms)
+    val_set = ImageDataset(dataset.query + dataset.gallery, val_transforms)
+    num_classes = dataset.num_train_pids
+    cam_num = dataset.num_train_cams
+    view_num = dataset.num_train_vids
 
     if 'triplet' in cfg.DATALOADER.SAMPLER:
         if cfg.MODEL.DIST_TRAIN:
