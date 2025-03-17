@@ -51,6 +51,8 @@ def do_train_stage2(cfg,
     
     loss_history = []
     accuracy_history = []
+    map_history = []
+    r1_history = []
     
     # train
     import time
@@ -136,58 +138,12 @@ def do_train_stage2(cfg,
                     .format(epoch, time_per_batch, train_loader_stage2.batch_size / time_per_batch))
 
         if epoch % checkpoint_period == 0:
-            if cfg.MODEL.DIST_TRAIN:
-                if dist.get_rank() == 0:
-                    torch.save(model.state_dict(),
-                               os.path.join(cfg.OUTPUT_DIR, cfg.MODEL.NAME + '_{}.pth'.format(epoch)))
-            else:
-                torch.save(model.state_dict(),
-                           os.path.join(cfg.OUTPUT_DIR, cfg.MODEL.NAME + '_{}.pth'.format(epoch)))
+            save_model(cfg, model, epoch)
 
         if epoch % eval_period == 0:
-            if cfg.MODEL.DIST_TRAIN:
-                if dist.get_rank() == 0:
-                    model.eval()
-                    for n_iter, (img, vid, camid, camids, target_view, _) in enumerate(val_loader):
-                        with torch.no_grad():
-                            img = img.to(device)
-                            if cfg.MODEL.SIE_CAMERA:
-                                camids = camids.to(device)
-                            else: 
-                                camids = None
-                            if cfg.MODEL.SIE_VIEW:
-                                target_view = target_view.to(device)
-                            else: 
-                                target_view = None
-                            feat = model(img, cam_label=camids, view_label=target_view)
-                            evaluator.update((feat, vid, camid))
-                    cmc, mAP, _, _, _, _, _ = evaluator.compute()
-                    logger.info("Validation Results - Epoch: {}".format(epoch))
-                    logger.info("mAP: {:.1%}".format(mAP))
-                    for r in [1, 5, 10]:
-                        logger.info("CMC curve, Rank-{:<3}:{:.1%}".format(r, cmc[r - 1]))
-                    torch.cuda.empty_cache()
-            else:
-                model.eval()
-                for n_iter, (img, vid, camid, camids, target_view, _) in enumerate(val_loader):
-                    with torch.no_grad():
-                        img = img.to(device)
-                        if cfg.MODEL.SIE_CAMERA:
-                            camids = camids.to(device)
-                        else: 
-                            camids = None
-                        if cfg.MODEL.SIE_VIEW:
-                            target_view = target_view.to(device)
-                        else: 
-                            target_view = None
-                        feat = model(img, cam_label=camids, view_label=target_view)
-                        evaluator.update((feat, vid, camid))
-                cmc, mAP, _, _, _, _, _ = evaluator.compute()
-                logger.info("Validation Results - Epoch: {}".format(epoch))
-                logger.info("mAP: {:.1%}".format(mAP))
-                for r in [1, 5, 10]:
-                    logger.info("CMC curve, Rank-{:<3}:{:.1%}".format(r, cmc[r - 1]))
-                torch.cuda.empty_cache()
+            mAP, r1 = evaluate_model(cfg, model, val_loader, evaluator, device, epoch, logger)  # 모델 평가
+            map_history.append(round(mAP * 100, 1))
+            r1_history.append(round(r1 * 100, 1))
 
     all_end_time = time.monotonic()
     total_time = timedelta(seconds=all_end_time - all_start_time)
@@ -211,6 +167,30 @@ def do_train_stage2(cfg,
     fig.suptitle("Stage2 Loss&Accuracy")
     fig.tight_layout()
     plt.savefig(os.path.join(cfg.OUTPUT_DIR, "stage2.png"))
+    
+    # evaluation graph 저장
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+
+    ax1.set_xlabel("eval steps")
+    ax1.set_ylabel("mAP", color='red')
+    ax1.plot(range(1, len(map_history) + 1), map_history, label="mAP", linewidth=2, marker='o')
+    ax1.tick_params(axis='y', labelcolor='red')
+    
+    for i, v in enumerate(map_history):
+        ax1.annotate(v, (i + 1, v), textcoords="offset points", xytext=(0, 5), ha='center', fontsize=6, color='red')
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("R1", color='green')
+    ax2.plot(range(1, len(r1_history) + 1), r1_history, label="R1", linewidth=2, marker='o')
+    ax2.tick_params(axis='y', labelcolor='green')
+    
+    for i, v in enumerate(r1):
+        ax2.annotate(v, (i + 1, v), textcoords="offset points", xytext=(0, 5), ha='center', fontsize=6, color='green')
+
+
+    fig.suptitle("Stage2 Evaluation")
+    fig.tight_layout()
+    plt.savefig(os.path.join(cfg.OUTPUT_DIR, "eval.png"))
 
 def save_model(cfg, model, epoch):
     if cfg.MODEL.DIST_TRAIN and dist.get_rank() != 0:
