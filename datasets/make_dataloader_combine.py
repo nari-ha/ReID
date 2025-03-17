@@ -53,20 +53,28 @@ def make_dataloader(cfg):
 
     num_workers = cfg.DATALOADER.NUM_WORKERS
     if cfg.DATA_COMBINE == True:
-        dataset1 = DevMarket(root=cfg.DATASETS.ROOT_DIR)
-        dataset2 = DevMSMT(root=cfg.DATASETS.ROOT_DIR)
+        # dataset1 = DevMarket(root=cfg.DATASETS.ROOT_DIR)
+        # dataset2 = DevMSMT(root=cfg.DATASETS.ROOT_DIR)
         """
         for test
         
         """
-        # dataset1 = Market1501(root=cfg.DATASETS.ROOT_DIR)
-        # dataset2 = MSMT17(root=cfg.DATASETS.ROOT_DIR)
+        dataset1 = Market1501(root=cfg.DATASETS.ROOT_DIR)
+        dataset2 = MSMT17(root=cfg.DATASETS.ROOT_DIR)
         pid_offset = dataset1.num_train_pids
         cam_offset = dataset2.num_train_cams
         
         train_data = dataset1.train + [(img_path, pid + pid_offset, camid + cam_offset, viewid) for img_path, pid, camid, viewid in dataset2.train]
-        query_data = dataset1.query + dataset2.query
-        gallery_data = dataset1.gallery + dataset2.gallery
+        # if eval 온리
+        if cfg.DATA_COMBINE_EVAL == 0:
+            query_data = dataset1.query + dataset2.query
+            gallery_data = dataset1.gallery + dataset2.gallery
+        elif cfg.DATA_COMBINE_EVAL == 1:
+            query_data = dataset1.query
+            gallery_data = dataset1.gallery 
+        elif cfg.DATA_COMBINE_EVAL == 2:
+            query_data = dataset2.query
+            gallery_data = dataset2.gallery
         
         # ImageDataset으로 변환
         train_set = ImageDataset(train_data, train_transforms)
