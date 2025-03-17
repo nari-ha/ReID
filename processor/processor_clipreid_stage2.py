@@ -184,7 +184,7 @@ def do_train_stage2(cfg,
     ax2.plot(range(1, len(r1_history) + 1), r1_history, label="R1", linewidth=2, marker='o')
     ax2.tick_params(axis='y', labelcolor='green')
     
-    for i, v in enumerate(r1):
+    for i, v in enumerate(r1_history):
         ax2.annotate(v, (i + 1, v), textcoords="offset points", xytext=(0, 5), ha='center', fontsize=6, color='green')
 
 
