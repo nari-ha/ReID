@@ -53,7 +53,7 @@ SOLVER:
     MAX_EPOCHS: 60
     CHECKPOINT_PERIOD: 60
     LOG_PERIOD: 50
-    EVAL_PERIOD: 60
+    EVAL_PERIOD: 20
     BIAS_LR_FACTOR: 2
     
     STEPS: [30, 50]
@@ -80,8 +80,8 @@ DATASETS:
 #   ROOT_DIR: ('')
 # OUTPUT_DIR: ''
 
-#   NAMES: ('msmt17')
-#   ROOT_DIR: ('')
-# OUTPUT_DIR: ''
+  NAMES: ('msmt17')
+  ROOT_DIR: ('./../dataset')
+OUTPUT_DIR: './output/msmt17'
 
 # CUDA_VISIBLE_DEVICES=3 python train_clipreid.py --config_file configs/person/vit_clipreid.yml
