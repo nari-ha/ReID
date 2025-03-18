@@ -77,11 +77,11 @@ DATASETS:
 #   ROOT_DIR: ('')
 # OUTPUT_DIR: ''
 
-  NAMES: ('market1501')
+  NAMES: ('msmt17')
   ROOT_DIR: ('./../dataset')
 OUTPUT_DIR: './output/test'
 
 DATA_COMBINE: True
-DATA_COMBINE_EVAL: 1 # 0 : combine, 1: market1501, 2: msmt17
+DATA_COMBINE_EVAL: 2 # 0 : combine, 1: market1501, 2: msmt17
 
 # CUDA_VISIBLE_DEVICES=1 python train_clipreid.py --config_file configs/person/res_clipreid.yml
