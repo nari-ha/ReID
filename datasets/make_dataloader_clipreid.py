@@ -17,6 +17,8 @@ __factory = {
     'market1501': Market1501,
     'msmt17': MSMT17,
     'veri': VeRi,
+    'dev_market': DevMarket,
+    'dev_msmt': DevMSMT,
 }
 
 def train_collate_fn(batch):
