@@ -132,19 +132,19 @@ class build_transformer(nn.Module):
             img_feature = nn.functional.avg_pool2d(image_features, image_features.shape[2:4]).view(x.shape[0], -1) 
             img_feature_proj = image_features_proj[0]
 
-        # elif self.model_name == 'ViT-B-16':
-        #     if cam_label != None and view_label!=None:
-        #         cv_embed = self.sie_coe * self.cv_embed[cam_label * self.view_num + view_label]
-        #     elif cam_label != None:
-        #         cv_embed = self.sie_coe * self.cv_embed[cam_label]
-        #     elif view_label!=None:
-        #         cv_embed = self.sie_coe * self.cv_embed[view_label]
-        #     else:
-        #         cv_embed = None
-        #     image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) 
-        #     img_feature_last = image_features_last[:,0]
-        #     img_feature = image_features[:,0]
-        #     img_feature_proj = image_features_proj[:,0]
+        elif self.model_name == 'ViT-B-16':
+            if cam_label != None and view_label!=None:
+                cv_embed = self.sie_coe * self.cv_embed[cam_label * self.view_num + view_label]
+            elif cam_label != None:
+                cv_embed = self.sie_coe * self.cv_embed[cam_label]
+            elif view_label!=None:
+                cv_embed = self.sie_coe * self.cv_embed[view_label]
+            else:
+                cv_embed = None
+            image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) 
+            img_feature_last = image_features_last[:,0]
+            img_feature = image_features[:,0]
+            img_feature_proj = image_features_proj[:,0]
 
         feat = self.bottleneck(img_feature) 
         feat_proj = self.bottleneck_proj(img_feature_proj) 
