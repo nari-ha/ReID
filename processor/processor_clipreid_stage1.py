@@ -21,7 +21,7 @@ def do_train_stage1(cfg,
     epochs = cfg.SOLVER.STAGE1.MAX_EPOCHS
     log_period = cfg.SOLVER.STAGE1.LOG_PERIOD 
 
-    logger = logging.getLogger("stage1.train")
+    logger = logging.getLogger("transreid.train")
     logger.info('start training')
     _LOCAL_PROCESS_GROUP = None
     if device:
