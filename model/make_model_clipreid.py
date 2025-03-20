@@ -18,9 +18,7 @@ def weights_init_kaiming(m):
     elif classname.find('BatchNorm') != -1:
         if m.affine:
             nn.init.constant_(m.weight, 1.0)
-            m.weight.requires_grad_(False)  # Freeze gamma
             nn.init.constant_(m.bias, 0.0)
-            m.bias.requires_grad_(True)  # Make bias learnable
 
 def weights_init_classifier(m):
     classname = m.__class__.__name__
@@ -73,18 +71,11 @@ class build_transformer(nn.Module):
         self.classifier.apply(weights_init_classifier)
         self.classifier_proj = nn.Linear(self.in_planes_proj, self.num_classes, bias=False)
         self.classifier_proj.apply(weights_init_classifier)
-
         self.bottleneck = nn.BatchNorm1d(self.in_planes)
-        # self.bottleneck.bias.requires_grad_(False)
-        self.bottleneck.weight.requires_grad_(False)  # Freeze gamma
-        self.bottleneck.bias.requires_grad_(True)  # Make bias learnable
-        
+        self.bottleneck.bias.requires_grad_(False)
         self.bottleneck.apply(weights_init_kaiming)
         self.bottleneck_proj = nn.BatchNorm1d(self.in_planes_proj)
-        # self.bottleneck_proj.bias.requires_grad_(False)
-        self.bottleneck_proj.weight.requires_grad_(False)  # Freeze gamma
-        self.bottleneck_proj.bias.requires_grad_(True)  # Make bias learnable
-        
+        self.bottleneck_proj.bias.requires_grad_(False)     
         self.bottleneck_proj.apply(weights_init_kaiming)
 
         self.h_resolution = int((cfg.INPUT.SIZE_TRAIN[0]-16)//cfg.MODEL.STRIDE_SIZE[0] + 1)
@@ -95,7 +86,6 @@ class build_transformer(nn.Module):
 
         self.image_encoder = clip_model.visual
         
-        # print("카메라", cfg.MODEL.SIE_CAMERA, "뷰", cfg.MODEL.SIE_VIEW)
         if cfg.MODEL.SIE_CAMERA and cfg.MODEL.SIE_VIEW:
             self.cv_embed = nn.Parameter(torch.zeros(camera_num * view_num, self.in_planes))
             trunc_normal_(self.cv_embed, std=.02)
